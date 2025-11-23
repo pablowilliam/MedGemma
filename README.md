@@ -64,13 +64,13 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 
 ```
 
-# Step 4: Install Node.js and npm
+# Step 7: Install Node.js and npm
 
 ```bash
 sudo apt install -y nodejs
 
 ```
-# Step 5: Verify the installation
+# Step 8: Verify the installation
 
 ```bash
 node -v
@@ -78,7 +78,7 @@ npm -v
 
 ```
 
-# Step 6: PM2 Global Installation
+# Step 9: PM2 Global Installation
 
 ```bash
 
@@ -87,7 +87,7 @@ npm install -g pm2
 ```
 
 
-# Step 7: Clone the repository from Github
+# Step 10: Clone the repository from Github
 
 ```bash
 
@@ -95,7 +95,7 @@ git clone https://github.com/pablowilliam/MedGemma.git
 
 ```
 
-# Step 8: Access the directory
+# Step 11: Access the directory
 
 ```bash
 
@@ -103,7 +103,7 @@ cd MedGemma
 
 ```
 
-# Step 9: Install the dependencies
+# Step 12: Install the dependencies
 
 ```bash
 
@@ -111,7 +111,7 @@ npm install
 
 ```
 
-# Step 10: Start the project
+# Step 13: Start the project
 
 ```bash
 
@@ -119,7 +119,7 @@ pm2 start server.js --name MedGemma
 
 ```
 
-# Step 11: You should see MedGemma online.
+# Step 14: You should see MedGemma online.
 
 # Access it in your browser
 
