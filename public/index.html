@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedGemma - Advanced AI Models</title>
+  <link rel="icon" type="image/png" href="icon.png">
+
+  <style>
+    /* Estilos CSS Base */
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f7f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    /* Estilos para o container da logo */
+    #logo-container {
+      margin-bottom: 20px;
+      text-align: center;
+      width: 100%;
+    }
+    #logo {
+      max-width: 150px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Estilos para o container principal do chat (expandido) */
+    #chat-container {
+      max-width: 920px;                /* expandido */
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 500px;
+      max-height: calc(100vh - 150px); /* mantém área alta sem “colar” ao topo */
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;                /* evita rolagem dupla nas bordas */
+    }
+
+    /* Estilos da área de mensagens */
+    #messages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;                /* só as mensagens rolam */
+      display: flex;
+      flex-direction: column;
+      white-space: pre-wrap;           /* mantém quebras e espaços */
+      gap: 14px;
+      scroll-behavior: smooth;
+      padding-bottom: 90px;            /* espaço extra p/ não “bater” no input */
+    }
+    /* Ocultar a barra de rolagem (continua rolável) */
+    #messages::-webkit-scrollbar { width: 0; background: transparent; }
+    #messages { scrollbar-width: none; }
+
+    /* Estilos das mensagens individuais */
+    .message {
+      max-width: 100%;
+      word-wrap: break-word;
+      font-size: 1rem;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    /* Utilizador: mantém “bolha” à direita como no teu padrão */
+    .user-message {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+      margin-left: auto;
+      padding: 10px 15px;
+      border-radius: 18px;
+      max-width: 80%;
+    }
+
+    /* IA: cartão cinza claro estilo ChatGPT (sem parecer balão pequeno) */
+    .ai-message {
+      align-self: stretch;           /* ocupa a largura útil */
+      margin-right: 0;
+    }
+    .ai-card {
+      background-color: #f2f2f2;     /* fundo que pediste */
+      border: 1px solid #e9e9e9;
+      border-radius: 12px;
+      padding: 16px 18px;
+      color: #222;
+    }
+
+    .message img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    /* Estilos da área de input (mantido) */
+    #input-area {
+      display: flex;
+      padding: 15px;
+      border-top: 1px solid #eee;
+      align-items: center;
+      gap: 10px;
+      background-color: #fff;
+      flex-wrap: wrap;
+    }
+    #message-input {
+      flex-grow: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 1rem;
+      min-width: 150px;
+    }
+    #send-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      flex-shrink: 0;
+    }
+    #send-button:hover { background-color: #0056b3; }
+
+    /* Estilos para o botão e pré-visualização de imagem (mantidos, sem rolagem) */
+    #image-upload-label {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 12px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      flex-shrink: 0;
+    }
+    #image-upload-label:hover { background-color: #5a6268; }
+
+    #image-preview-container {
+      display: none;                  /* só aparece quando há imagem */
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding: 10px 15px;
+      background-color: #f7f7f7;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #image-preview {
+      max-width: 80px;
+      max-height: 80px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      object-fit: contain;
+    }
+    #remove-image-button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    #image-upload-input { display: none; }
+
+    /* --- Media Queries para Mobile --- */
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      #logo-container { margin-bottom: 15px; }
+      #logo { max-width: 120px; }
+      #chat-container {
+        border-radius: 0;
+        box-shadow: none;
+        min-height: calc(100vh - 145px);
+        max-height: calc(100vh - 20px);
+        width: 100%;
+      }
+      #messages { padding: 15px; gap: 12px; padding-bottom: 90px; }
+      .user-message {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+      }
+      .ai-card { padding: 14px 16px; }
+      #input-area {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px;
+      }
+      #image-upload-label, #send-button {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      #message-input { width: 100%; margin-bottom: 5px; }
+      #image-preview-container { padding: 10px; }
+    }
+
+    /* --- Media Query para Telas Muito Pequenas (ex: iPhone SE) --- */
+    @media (max-width: 480px) {
+      body { padding: 5px; }
+      #logo { max-width: 100px; }
+      #chat-container {
+        max-height: calc(100vh - 10px);
+        min-height: calc(100vh - 125px);
+      }
+      #messages { padding: 10px; padding-bottom: 90px; }
+      .user-message { font-size: 0.9rem; }
+      .ai-card { padding: 12px 14px; }
+      #input-area { padding: 8px; }
+      #message-input, #send-button, #image-upload-label {
+        padding: 10px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="logo-container">
+    <img id="logo" src="logo.png" alt="MedGemma" width="500" height="300">
+  </div>
+
+  <div id="chat-container">
+    <div id="messages"></div>
+
+    <!-- Pré-visualização de imagem (sem rolagem interna) -->
+    <div id="image-preview-container">
+      <img id="image-preview" src="#" alt="Pré-visualização da Imagem">
+      <button id="remove-image-button">X</button>
+      <span>Ficheiro: <span id="image-filename"></span></span>
+    </div>
+
+    <div id="input-area">
+      <input type="file" id="image-upload-input" accept="image/*">
+      <label for="image-upload-input" id="image-upload-label">Anexar Ficheiro</label>
+      <textarea id="message-input" placeholder="Escreve a tua mensagem..." rows="2" cols="30"></textarea>
+      <button id="send-button">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    const TYPING_DELAY = 10;
+
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const imageUploadInput = document.getElementById('image-upload-input');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const removeImageButton = document.getElementById('remove-image-button');
+    const imageFilenameSpan = document.getElementById('image-filename');
+
+    let selectedFile = null;
+
+    function scrollToBottom() {
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function typeAndRenderText(plainText, element) {
+      element.textContent = '';
+      let index = 0;
+      (function type() {
+        if (index < plainText.length) {
+          element.textContent += plainText.charAt(index++);
+          requestAnimationFrame(scrollToBottom);
+          setTimeout(type, TYPING_DELAY);
+        }
+      })();
+    }
+
+    function typeAndRenderTextWithHtmlAfter(text, element, htmlFormatter) {
+      element.textContent = '';
+      let index = 0;
+      (function type() {
+        if (index < text.length) {
+          element.textContent += text.charAt(index++);
+          requestAnimationFrame(scrollToBottom);
+          setTimeout(type, TYPING_DELAY);
+        } else {
+          // após termino do texto, aplicar HTML clinico
+          element.innerHTML = htmlFormatter(text);
+          requestAnimationFrame(scrollToBottom);
+        }
+      })();
+    }
+
+    // Função que converte texto em HTML formatado (Para as respostas do assistente)
+    function formatClinicoSectionsToHtml(text) {
+      let html = text
+        // 0) Normalizar múltiplas linhas vazias (mantém parágrafos sem exageros)
+        .replace(/\n{2,}/g, '\n\n')
+        // 1) Remover todos os asteriscos
+        .replace(/[\*]+/g, '')
+        // 2) Mapear cabeçalhos clínicos para negrito
+        .replace(/\n?ACHADOS:/gi, '<br><b>ACHADOS:</b><br>')
+        .replace(/\n?DIAGN[ÓO]STICO CL[ÍI]NICO:/gi, '<br><b>DIAGNÓSTICO CLÍNICO:</b><br>')
+        .replace(/\n?IMPRESS[ÃA]O DIAGN[ÓO]STICA:/gi, '<br><b>IMPRESSÃO DIAGNÓSTICA:</b><br>')
+        .replace(/\n?OBSERVA(C|Ç)[ÕO]ES:/gi, '<br><b>OBSERVAÇÕES:</b><br>')
+        // 3) Converter "Disclaimer:" (inglês) para "AVISO:" em negrito (PT-PT)
+        .replace(/\n?DISCLAIMER:/gi, '<br><b>AVISO:</b><br>');
+      // Remove possível <br> inicial duplicado
+      html = html.replace(/^<br>/, '');
+      // Outras quebras de linha visíveis como <br>
+      html = html.replace(/\n/g, '<br>');
+      // Evitar excesso de <br> seguidos (no máx. 2 consecutivos)
+      html = html.replace(/(<br>\s*){3,}/g, '<br><br>');
+      return html.trim();
+    }
+
+    function addMessage(text, sender, filePreviewUrl = null, fileName = null, fileType = null) {
+      const messageEl = document.createElement('div');
+      messageEl.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
+
+      if (sender === 'ai') {
+        const card = document.createElement('div');
+        card.className = 'ai-card';
+        messageEl.appendChild(card);
+        messagesDiv.appendChild(messageEl);
+
+        const cleanedText = (text || '').replace(/```[\s\S]*?```/g, m => m.replace(/```/g,''));
+        // digitação tipo humana, seguido de formatação clinica
+        typeAndRenderTextWithHtmlAfter(cleanedText, card, formatClinicoSectionsToHtml);
+        requestAnimationFrame(scrollToBottom);
+        return;
+      }
+
+      let displayContent = text || '';
+      if (fileName && !filePreviewUrl) {
+        displayContent = `(Ficheiro: ${fileName}) ${displayContent}`;
+      }
+      messageEl.textContent = displayContent;
+
+      if (filePreviewUrl) {
+        const imgEl = document.createElement('img');
+        imgEl.src = filePreviewUrl;
+        messageEl.appendChild(imgEl);
+      } else if (fileName && !filePreviewUrl) {
+        const fileIcon = document.createElement('span');
+        fileIcon.textContent = `[${fileType ? fileType.split('/')[0].toUpperCase() : 'FICHEIRO'}] `;
+        fileIcon.style.fontWeight = 'bold';
+        fileIcon.style.marginRight = '5px';
+        messageEl.prepend(fileIcon);
+      }
+
+      messagesDiv.appendChild(messageEl);
+      requestAnimationFrame(scrollToBottom);
+    }
+
+    imageUploadInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        selectedFile = file;
+        imageFilenameSpan.textContent = file.name;
+        imagePreviewContainer.style.display = 'flex';
+
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          imagePreview.src = '#';
+          imagePreview.style.display = 'none';
+          imageFilenameSpan.textContent = `${file.name} (${file.type.split('/')[0].toUpperCase()})`;
+        }
+      } else {
+        selectedFile = null;
+        imagePreviewContainer.style.display = 'none';
+        imagePreview.src = '#';
+        imagePreview.style.display = 'none';
+        imageFilenameSpan.textContent = '';
+      }
+    });
+
+    removeImageButton.addEventListener('click', () => {
+      selectedFile = null;
+      imageUploadInput.value = '';
+      imagePreviewContainer.style.display = 'none';
+      imagePreview.src = '#';
+      imagePreview.style.display = 'none';
+      imageFilenameSpan.textContent = '';
+    });
+
+    sendButton.addEventListener('click', async () => {
+      const messageText = messageInput.value.trim();
+      if (!messageText && !selectedFile) return;
+
+      let userFilePreviewUrl = null, userFileName = null, userFileType = null;
+      if (selectedFile) {
+        userFileName = selectedFile.name;
+        userFileType = selectedFile.type;
+        if (selectedFile.type.startsWith('image/')) {
+          userFilePreviewUrl = URL.createObjectURL(selectedFile);
+        }
+      }
+      addMessage(messageText, 'user', userFilePreviewUrl, userFileName, userFileType);
+
+      const formData = new FormData();
+      formData.append('text', messageText);
+      if (selectedFile) formData.append('fileUpload', selectedFile);
+
+      messageInput.value = '';
+      selectedFile = null;
+      imageUploadInput.value = '';
+      imagePreviewContainer.style.display = 'none';
+      imagePreview.src = '#';
+      imagePreview.style.display = 'none';
+      imageFilenameSpan.textContent = '';
+
+      addMessage('A Syrus AI está a pensar...', 'ai');
+
+      try {
+        const response = await fetch('/api/chat', { method: 'POST', body: formData });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Unknown API error');
+        }
+        const data = await response.json();
+
+        messagesDiv.lastChild.remove();
+        addMessage(data.reply, 'ai');
+      } catch (error) {
+        console.error('Error sending message:', error);
+        messagesDiv.lastChild.remove();
+        addMessage(`Erro: ${error.message}. Tenta novamente.`, 'ai');
+      }
+    });
+
+    messageInput.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        sendButton.click();
+      }
+    });
+
+    // Apresentação animada e formatada da mensagem inicial do assistente
+    window.addEventListener('DOMContentLoaded', function() {
+      const messageEl = document.createElement('div');
+      messageEl.classList.add('message', 'ai-message');
+      const card = document.createElement('div');
+      card.className = 'ai-card';
+      messageEl.appendChild(card);
+      messagesDiv.appendChild(messageEl);
+
+      const initialText =
+        'Olá! Eu sou a Syrus AI, o teu assistente avançado de IA para análise de texto e imagens médicas. Posso ajudar-te na análise de exames médicos (como Ressonância Magnética, TAC/TC, Raio-X, eletrocardiogramas, relatórios laboratoriais, entre outros), explicando os achados de forma clara e simples. Envia-me a imagem ou documento.';
+      typeAndRenderTextWithHtmlAfter(initialText, card, formatClinicoSectionsToHtml);
+    });
+  </script>
+</body>
+</html>
