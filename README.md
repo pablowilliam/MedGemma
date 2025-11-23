@@ -39,19 +39,20 @@ ollama serve &
 http://localhost:11434/
 
 ```
-# Check the API template.
-
-```bash
-
-http://localhost:11434/api/tags
-
-```
 
 # Step 5: Download image amsaravi/medgemma-4b-it:q8:
 
 ```bash
 
 ollama pull amsaravi/medgemma-4b-it:q8
+
+```
+
+# Check the API template.
+
+```bash
+
+http://localhost:11434/api/tags
 
 ```
 
