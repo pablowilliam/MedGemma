@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -255,9 +255,9 @@
 
     <div id="input-area">
       <input type="file" id="image-upload-input" accept="image/*">
-      <label for="image-upload-input" id="image-upload-label">Anexar Ficheiro</label>
-      <textarea id="message-input" placeholder="Escreve a tua mensagem..." rows="2" cols="30"></textarea>
-      <button id="send-button">Enviar</button>
+      <label for="image-upload-input" id="image-upload-label">Attach File</label>
+      <textarea id="message-input" placeholder="Write your message..." rows="2" cols="30"></textarea>
+      <button id="send-button">Send</button>
     </div>
   </div>
 
@@ -432,7 +432,7 @@
       imagePreview.style.display = 'none';
       imageFilenameSpan.textContent = '';
 
-      addMessage('A Syrus AI está a pensar...', 'ai');
+      addMessage('Syrus AI is thinking...', 'ai');
 
       try {
         const response = await fetch('/api/chat', { method: 'POST', body: formData });
@@ -467,7 +467,8 @@
       messagesDiv.appendChild(messageEl);
 
       const initialText =
-        'Olá! Eu sou a Syrus AI, o teu assistente avançado de IA para análise de texto e imagens médicas. Posso ajudar-te na análise de exames médicos (como Ressonância Magnética, TAC/TC, Raio-X, eletrocardiogramas, relatórios laboratoriais, entre outros), explicando os achados de forma clara e simples. Envia-me a imagem ou documento.';
+        'Hello! I am Syrus AI, your advanced AI assistant for analyzing medical text and images. I can help you analyze medical exams (such as MRI, CT scans, X-rays, electrocardiograms, lab reports, and more), explaining the findings clearly and simply. Send me the image or document.';
+
       typeAndRenderTextWithHtmlAfter(initialText, card, formatClinicoSectionsToHtml);
     });
   </script>
